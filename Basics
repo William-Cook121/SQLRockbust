@@ -1,0 +1,34 @@
+__Insert command to add new genres__
+SELECT * FROM category;
+INSERT INTO category (name) VALUES ('Thriller');
+INSERT INTO category (name) VALUES ('Crime');
+INSERT INTO category (name) VALUES ('Mystery');
+INSERT INTO category (name) VALUES ('Romance');
+INSERT INTO category (name) VALUES ('War');
+
+__What is the average rental rate for each rating category? rental durations?__
+SELECT rating, rental_rate, COUNT(film_id)
+
+SELECT rating, MIN(rental_duration), MAX(rental_duration)
+FROM film
+GROUP BY rating;
+
+__FILTERING/ Select movies based on characteristics__
+SELECT film_id, title, description FROM film
+WHERE rating IN ('G', 'PG')
+
+SELECT *
+COUNT(rating) AS count_of_movies, MAX(rental_duration) AS maximum_rental_duration, MIN(rental_duration) AS minumum_rental_duration, AVG(rental_rate) AS average_rental_rate
+FROM film
+WHERE rating IN ('G', 'PG')
+
+__Change query titles__
+SELECT rating,
+MAX(rental_duration) AS maximum_rental_duration, MIN(rental_duration) AS minumum_rental_duration, AVG(rental_rate) AS average_rental_rate
+FROM film
+WHERE rating IN ('G', 'PG')
+GROUP BY rating
+
+
+
+
