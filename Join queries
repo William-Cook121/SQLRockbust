@@ -1,0 +1,76 @@
+3.7 Join Queries
+
+1a.
+Finding the top ten most popular countries for Rockbuster use requires a query multiple joins across tables that are connected by primary keys. I chose to use COUNT (customer_id) to identify how many customers are in each country. Studying the ERD reveals that customers can be connected to their country of origin through address and city using their respective ‘ids) as primary keys. Grouping the customers by country allows the COUNT function to work on the aggregate data. 
+
+SELECT D.country,
+		COUNT (customer_id) AS count_of_customers
+FROM customer A
+	INNER JOIN address B ON A.address_id = B.address_id 
+	INNER JOIN city C ON B.city_id = C.city_id 
+	INNER JOIN country D ON C.country_id = D.country_id 
+GROUP BY country
+ORDER BY count_of_customers DESC LIMIT 10
+
+Country		count_of_customers
+"India"		60
+"China"		53
+"United States"	36
+"Japan"		31
+"Mexico"	30
+"Brazil"		28
+"Russian Fed"	28
+"Philippines"	20
+"Turkey"	15
+"Indonesia"	14
+
+2a.
+This query uses the structure and results from the previous query, but digs deeper into the city and customer table. I chose to select the city along with the country for clarity. Using the WHERE clause to base the top cities on the top countries. 
+
+SELECT C.city, D.country,
+		COUNT (customer_id) AS count_of_customers
+FROM customer A
+	INNER JOIN address B ON A.address_id = B.address_id 
+	INNER JOIN city C ON B.city_id = C.city_id 
+	INNER JOIN country D ON C.country_id = D.country_id 
+WHERE country IN ('India', 'China', 'United States', 'Japan', 'Mexico', 'Brazil', 
+				  'Russian Federation', 'Philippines', 'Turkey', 'Indonesia')
+GROUP BY city, country 
+ORDER BY count_of_customers DESC LIMIT 10
+City		Country			Count
+"Aurora"	"United States"		2
+"Atlixco"	"Mexico"		1
+"Xintai"		"China"			1
+"Adoni"		"India"			1
+"Dhule (Dhulia)"“India"			1
+"Kurashiki"	"Japan"			1
+"Pingxiang"	"China"			1
+"Sivas"		"Turkey"		1
+"Celaya"	"Mexico"		1
+"So Leopoldo"	"Brazil"			1
+
+
+
+3a.
+SELECT a.customer_id, a.first_name, a.last_name,
+b.country, c.city, SUM(d.amount) AS payment_total 
+FROM customer a 
+INNER JOIN payment d ON a.customer_id = d.customer_id
+INNER JOIN address e ON a.address_id = e.address_id 
+INNER JOIN city c ON e.city_id = c.city_id 
+INNER JOIN country b ON c.country_id = b.country_id
+WHERE c.city IN ('Aurora', 'Atlixco',
+'Yingkou', 'Aparecida de Goinia',
+'Zalantun', 'Rio Claro',
+'Emeishan',
+'Rampur', 'Zhoushan'
+'Shimoga')
+GROUP BY a.customer_id, c.city, b.country
+ORDER BY payment_total DESC
+LIMIT 5
+Customer_id	first_name	last_name	country		city		payment_total
+84		"Sara"		"Perry"		"Mexico"	"Atlixco"	128.70
+389		"Alan"		"Kahn"		"China"		"Emeishan"	119.75
+537		"Clinton"	"Buford"	"United States"	"Aurora"	98.76
+74		"Denise"	"Kelly"		"Brazil"		"Rio Claro"	96.74
+336		"Joshua"	"Mark"		"India"		"Rampur"	93.78
