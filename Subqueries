@@ -1,0 +1,61 @@
+3.8 SQL Subqueries
+1a.
+average
+$107.55
+SELECT AVG (total_amount_paid) AS average
+FROM 
+(SELECT a.customer_id, a.first_name, a.last_name,
+b.country, c.city, SUM(d.amount) AS total_amount_paid
+FROM customer a 
+INNER JOIN payment d ON a.customer_id = d.customer_id
+INNER JOIN address e ON a.address_id = e.address_id 
+INNER JOIN city c ON e.city_id = c.city_id 
+INNER JOIN country b ON c.country_id = b.country_id
+WHERE c.city IN ('Aurora', 'Atlixco',
+'Yingkou', 'Aparecida de Goinia',
+'Zalantun', 'Rio Claro',
+'Emeishan',
+'Rampur', 'Zhoushan'
+'Shimoga')
+GROUP BY a.customer_id, c.city, b.country
+ORDER BY total_amount_paid DESC
+LIMIT 5)
+AS total_amount_paid
+
+2a.
+
+SELECT b.country,
+COUNT(DISTINCT a.customer_id) AS all_customer_count,
+COUNT(DISTINCT top_5_customers.customer_id) AS top_customer_count
+FROM country b
+INNER JOIN city c ON c.country_id = b.country_id
+INNER JOIN address e ON e.city_id = c.city_id
+INNER JOIN customer a ON a.address_id = e.address_id
+LEFT JOIN
+(SELECT a.customer_id, a.first_name, a.last_name,
+b.country, c.city, SUM(d.amount) AS payment_total 
+FROM customer a 
+INNER JOIN payment d ON a.customer_id = d.customer_id
+INNER JOIN address e ON a.address_id = e.address_id 
+INNER JOIN city c ON e.city_id = c.city_id 
+INNER JOIN country b ON c.country_id = b.country_id
+WHERE c.city IN ('Aurora', 'Atlixco',
+'Yingkou', 'Aparecida de Goinia',
+'Zalantun', 'Rio Claro',
+'Emeishan',
+'Rampur', 'Zhoushan'
+'Shimoga')
+GROUP BY a.customer_id, c.city, b.country
+ORDER BY payment_total DESC
+LIMIT 5) AS top_5_customers
+ON b.country = top_5_customers.country
+GROUP BY b.country, top_5_customers.customer_id
+ORDER BY top_customer_count DESC
+
+3a.
+Similar results can be achieved without running a subquery, a query can be used on the initial results.
+But the data is dynamic causing those results to be obsolete when the top customers make another purchase or if the top five customers change.
+Using the subquery on problem one makes it much easier to perform since it is a simple outer query based on the more complex inner query.
+With the changing data it is possible that the top customers can be located out of the selected list, thus making it necessary to alter
+the subquery to encompass all the countries and cities in the data set. Step two can be done without a subquery by selecting the top 
+customers within countries and determining if they are top customers. Since this data has the potential to change a subquery makes it easier to stay up to date with changes. 
