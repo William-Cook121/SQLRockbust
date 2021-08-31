@@ -1,0 +1,110 @@
+1a. Check for Dirty Data
+SELECT
+COUNT(rental_rate) AS count_rent_values,
+       COUNT(*) AS count_rows
+FROM film;
+count_rent_values   	count_rows
+1000			1000
+
+This count query ensures that there are no extra rows in the film table, if there were extra rows then there would be missing data within those rows. Creating a view table with distinct selections is the method for retrieving unique data to ensure accurate analysis. 
+SELECT title, release_year, language_id, rental_duration,
+       COUNT(*)
+FROM film
+GROUP BY title, release_year, language_id, rental_duration
+HAVING COUNT(*) >1
+The return data output had zero rows affected, which is a good thing since it means there are no duplicate rows. 
+
+SELECT DISTINCT rating
+FROM film;
+"NC-17"
+"PG-13"
+"PG"
+"G"
+"R"
+This query shows that there are the five standard ratings within our data base without any non-uniform data. If it contained more than five results, there would likely be unintentional aliases for ratings. To fix this I would use the UPDATE function to SET all the aliases to the standard uniform data classification.
+
+SELECT DISTINCT first_name, last_name
+FROM customer;
+There are 599 rows affected by this search for distinct customer names. 
+SELECT
+       COUNT(customer_id) AS count_customer_id,
+       COUNT(*) AS count_rows
+FROM customer;
+This count query returns a count of 599 rows as well, which matches with the amount of distinct name thus ensuring there are no duplicate names. 
+SELECT first_name, last_name,
+       COUNT(*)
+FROM customer
+GROUP BY first_name, last_name
+HAVING COUNT(*) >1
+This query returns a value of zero, so it is reiterated that there is no duplicate data. If duplicate data exists I would first create a duplicate table with only unique records using the VIEW statement. Using the view table is the safe way to edit tables without worrying about making permanent changes to the main data table.  
+
+2a. Data summary 		
+SELECT
+ MIN(rental_rate) AS min_rent,
+       MAX(rental_rate) AS max_rent,
+       AVG(rental_rate) AS avg_rent, 
+FROM film;
+min_rent	max_rent	avg_rent	
+0.99	4.99		2.98 
+SELECT mode() WITHIN GROUP (ORDER BY rating)
+	AS modal_value
+FROM film;
+Modal_value
+PG-13
+SELECT rating,
+       COUNT(*)
+FROM film
+GROUP BY rating
+ORDER BY COUNT(*);
+"G"		178
+"PG"	194
+"R"		195
+"NC-17"	210
+"PG-13"	223
+SELECT customer_id,
+       COUNT(*)
+FROM rental
+GROUP BY customer_id
+ORDER BY COUNT(*) desc;
+Customer_id 	count_rental
+148			46
+526			45
+144			42
+236			42
+75			41
+469			40
+197			40
+137			39
+178			39
+468			39
+Count the top ten customers that have the most rentals from Rockbuster. 
+For some reason when using the same query for rental_id to count which movie was rented the most, they all came back with one. 
+SELECT rental_date,
+       COUNT(*)
+FROM rental
+GROUP BY rental_date
+ORDER BY COUNT(*) desc
+Time stamp			count
+"2006-02-14 15:16:03"	182
+"2005-07-29 08:40:36"	2
+The most rentals occurred on February 14, 2006 which just so happened to be Valentine’s day. The rest of the timestamped dates have a one or two count. 
+SELECT inventory_id,
+       COUNT(*)
+FROM rental
+GROUP BY inventory_id
+ORDER BY COUNT(*) desc;
+1828	5
+811	5	5
+1494	5
+1131	5
+4581	5 
+This query returned 4580 rows of data with the highest count being five then decreasing down to one, the breaks seem even. This query should count the most popular rental. 
+SELECT MIN(amount) AS min_amount,
+       MAX(amount) AS max_amount,
+       AVG(amount) AS avg_amount,
+       COUNT(amount) AS count_amount,
+       COUNT(*) AS count_rows
+FROM payment;
+Min_amount	max_amount	avg_amount			count_amount	count_rows
+0.0	11.99	4.20					14596		14596
+Here is a summary of the payments received. There must have been some comped rentals in order to take care of customers or a buy one get one free promotion. I bet the sales team would like to see a higher average cost for rentals. 
