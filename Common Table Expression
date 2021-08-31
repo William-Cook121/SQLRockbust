@@ -1,0 +1,85 @@
+3.9 CTE
+1a.
+WITH average_cte AS
+(SELECT a.customer_id, a.first_name, a.last_name,
+b.country, c.city, SUM(d.amount) AS total_amount_paid
+FROM customer a 
+INNER JOIN payment d ON a.customer_id = d.customer_id
+INNER JOIN address e ON a.address_id = e.address_id 
+INNER JOIN city c ON e.city_id = c.city_id 
+INNER JOIN country b ON c.country_id = b.country_id
+WHERE c.city IN ('Aurora', 'Atlixco',
+'Yingkou', 'Aparecida de Goinia',
+'Zalantun', 'Rio Claro',
+'Emeishan',
+'Rampur', 'Zhoushan'
+'Shimoga')
+GROUP BY a.customer_id, c.city, b.country
+ORDER BY total_amount_paid DESC
+LIMIT 5)
+SELECT AVG(total_amount_paid)
+FROM average_cte;
+1b.
+107.55
+1c.
+The list and main statement were basically the same for the CTE as the subquery. Of course the initial SELECT statement has to be changed to a WITH statement to declare the CTE. The SELECT AVG refers to the formula at the beginning of the CTE. The FROM statement ties it all into the CTE. 
+
+
+
+2a. 
+WITH customer_cte AS
+(SELECT a.customer_id, a.first_name, a.last_name,
+b.country, c.city, SUM(d.amount) AS payment_total 
+FROM customer a 
+INNER JOIN payment d ON a.customer_id = d.customer_id
+INNER JOIN address e ON a.address_id = e.address_id 
+INNER JOIN city c ON e.city_id = c.city_id 
+INNER JOIN country b ON c.country_id = b.country_id
+WHERE c.city IN ('Aurora', 'Atlixco',
+'Yingkou', 'Aparecida de Goinia',
+'Zalantun', 'Rio Claro',
+'Emeishan',
+'Rampur', 'Zhoushan'
+'Shimoga')
+ GROUP BY a.customer_id, c.city, b.country
+ORDER BY payment_total DESC
+LIMIT 5) 
+SELECT b.country,
+COUNT(DISTINCT a.customer_id) AS all_customer_count,
+COUNT(DISTINCT customer_cte.customer_id) AS top_customer_count
+FROM country b
+INNER JOIN city c ON c.country_id = b.country_id
+INNER JOIN address e ON e.city_id = c.city_id
+INNER JOIN customer a ON a.address_id = e.address_id
+LEFT JOIN customer_cte ON b.country = customer_cte.country
+GROUP BY b.country
+ORDER BY COUNT (b.country) DESC;
+
+2c.
+The list generated is the count of customers that paid the most. Defining the CTE by the amount of top customers in the country is the main statement,
+it counts the amount of customers per a country. Grouping the count by the correct country selector also took a few attempts.
+I could not get the query to order it by the top customer, just the top amount of customers per country. 
+
+3a. 
+The CTE is more specific and will perform better than the table join. 
+
+3b. Analyzing the cost 
+
+Total cost of average spent subquery is 753
+Total cost of average spent CTE is 739
+total cost of top customer subquery is 1636
+total cost of top customer CTE is approximately 1366
+
+3c.
+Average spent subquery query runtime 65 msec.
+Average spent CTE query runtime 65 msec.
+Customer_country subquery runtime 91 msec. 
+Customer_country_cte Total query runtime: 84 msec.
+3d.
+Since the average amount spent is a relatively simple query it makes sense that the run time is the same for both methods.
+The CTE for the top country_customer ran a bit quicker, which makes sense since CTEs are generally more efficient. 
+4a. 
+ One of the challenges with running the common table expression was finding the correct syntax. 
+ This problem occurred in both queries and will likely continue happening as long as I write SQL statements. 
+ The second query was much more difficult, switching the order of the query was a challenge since it worked
+ one way for the subquery but needs to be rearranged for the CTE; it took a while for that to make sense to me. 
