@@ -1,0 +1,58 @@
+Queries that provided data for final presentation.
+
+1a. Discovering that Valentines Day 2006 was by far the most popular day for rentals.
+
+SELECT rental_date,
+       COUNT(*)
+FROM rental
+GROUP BY rental_date
+ORDER BY COUNT(*) desc
+
+2a. Rentals per a customer
+
+SELECT customer_id,
+       COUNT(*)
+FROM rental
+GROUP BY customer_id
+ORDER BY COUNT(*) desc;
+
+3a. Top ten cities with customer base
+
+SELECT D.country,
+FROM customer A
+  INNER JOIN address B ON A.address_id = B.address_id
+  INNER JOIN city C ON B.city_id = C.city_id
+  INNER JOIN country D ON C.country_id = D.country_id
+GROUP BY country
+ORDER BY count_of_customers DESC LIMIT 10
+
+4a. Top ten countries with customer base
+
+SELECT C.city, D.country,
+  COUNT (customer_id) AS count_of_customers
+FROM customer A
+  INNER JOIN address B ON A.address_id = B.address_id
+  INNER JOIN city C ON B.city_id = C.city_id
+  INNER JOIN country D ON C.country_id = D.country_id
+WHERE country IN ('India', 'China', 'United States', 'Japan', 'Mexico', 'Brazil', 'Russian Federation', 'Philippines', 'Turkey', 'Indonesia')
+GROUP BY city, country
+ORDER BY count_of_customers DESC LIMIT 10
+
+5a. Top five customers
+
+SELECT a.customer_id, a.first_name, a.last_name,
+b.country, c.city, SUM(d.amount) AS payment_total
+FROM customer a
+INNER JOIN payment d ON a.customer_id = d.customer_id
+INNER JOIN address e ON a.address_id = e.address_id
+INNER JOIN city c ON e.city_id = c.city_id
+INNER JOIN country b ON c.country_id = b.country_id
+WHERE c.city IN ('Aurora', 'Atlixco',
+'Yingkou', 'Aparecida de Goinia',
+'Zalantun', 'Rio Claro',
+'Emeishan',
+'Rampur', 'Zhoushan'
+'Shimoga')
+GROUP BY a.customer_id, c.city, b.country
+ORDER BY payment_total DESC
+LIMIT 5
